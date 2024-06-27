@@ -1,6 +1,7 @@
 import React from 'react';
 import { makeStyles } from '@mui/styles';
 import CssBaseline from '@mui/material/CssBaseline';
+import { Container, Paper, Box } from '@mui/material';
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -9,10 +10,13 @@ const useStyles = makeStyles((theme) => ({
     alignItems: 'center',
     justifyContent: 'center',
     height: '100vh',
+    backgroundColor: theme.palette.background.default,
   },
   content: {
     flexGrow: 1,
     padding: theme.spacing(3),
+    maxWidth: '400px',
+    width: '100%',
   },
 }));
 
@@ -22,9 +26,11 @@ const SimpleLayout = ({ children }) => {
   return (
     <div className={classes.root}>
       <CssBaseline />
-      <main className={classes.content}>
-        {children}
-      </main>
+      <Container component="main" maxWidth="xs" className={classes.content}>
+        <Paper elevation={6}>
+          <Box p={3}>{children}</Box>
+        </Paper>
+      </Container>
     </div>
   );
 };

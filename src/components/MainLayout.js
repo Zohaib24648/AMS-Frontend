@@ -7,10 +7,13 @@ import TopHeader from './TopHeader';
 const useStyles = makeStyles((theme) => ({
   root: {
     display: 'flex',
+    backgroundColor: theme.palette.background.default,
+    minHeight: '100vh',
   },
   content: {
     flexGrow: 1,
     padding: theme.spacing(3),
+    backgroundColor: theme.palette.background.default,
   },
   toolbar: theme.mixins.toolbar,
 }));

@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { useSelector } from 'react-redux';
 import axios from 'axios';
+import { Typography, Button, Box, Paper, Container, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, CircularProgress } from '@mui/material';
 
 const AdminDashboard = () => {
   const [totalUsers, setTotalUsers] = useState(0);
@@ -8,6 +9,7 @@ const AdminDashboard = () => {
   const [usersAbsentToday, setUsersAbsentToday] = useState(0);
   const [attendanceRecords, setAttendanceRecords] = useState([]);
   const [showAttendance, setShowAttendance] = useState(false);
+  const [loading, setLoading] = useState(true);
 
   const token = useSelector((state) => state.auth.token);
 
@@ -42,9 +44,11 @@ const AdminDashboard = () => {
           setUsersPresentToday(present);
           setUsersAbsentToday(absent);
           setAttendanceRecords(response.data);
+          setLoading(false);
         })
         .catch(error => {
           console.error('Error fetching attendance records:', error);
+          setLoading(false);
         });
     }
   }, [token]);
@@ -54,32 +58,52 @@ const AdminDashboard = () => {
   };
 
   return (
-    <div>
-      <h1>Admin Dashboard</h1>
-      <div>
-        <p>Total Users: {totalUsers}</p>
-        <p>Users Present Today: {usersPresentToday}</p>
-        <p>Users Absent Today: {usersAbsentToday}</p>
-      </div>
-      <button onClick={handleShowAttendance}>
+    <Container maxWidth="md" sx={{ marginTop: 4 }}>
+      <Typography variant="h4" sx={{ marginBottom: 4 }}>Admin Dashboard</Typography>
+      <Paper elevation={3} sx={{ padding: 4, marginBottom: 4 }}>
+        <Typography variant="h6">Overview</Typography>
+        <Box sx={{ display: 'flex', justifyContent: 'space-between', marginTop: 2 }}>
+          <Typography variant="body1">Total Users: {totalUsers}</Typography>
+          <Typography variant="body1">Users Present Today: {usersPresentToday}</Typography>
+          <Typography variant="body1">Users Absent Today: {usersAbsentToday}</Typography>
+        </Box>
+      </Paper>
+      <Button variant="contained" color="primary" onClick={handleShowAttendance} sx={{ marginBottom: 4 }}>
         {showAttendance ? 'Hide' : 'Show'} Today's Attendance
-      </button>
+      </Button>
       {showAttendance && (
-        <div>
-          <h2>Today's Attendance</h2>
-          <ul>
-            {attendanceRecords.filter(record => {
-              const recordDate = new Date(record.date);
-              return recordDate.toDateString() === new Date().toDateString();
-            }).map(record => (
-              <li key={record._id}>
-                {record.userId.name} - {record.status}
-              </li>
-            ))}
-          </ul>
-        </div>
+        <Paper elevation={3} sx={{ padding: 4 }}>
+          <Typography variant="h6" sx={{ marginBottom: 2 }}>Today's Attendance</Typography>
+          {loading ? (
+            <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: 100 }}>
+              <CircularProgress />
+            </Box>
+          ) : (
+            <TableContainer component={Paper}>
+              <Table>
+                <TableHead>
+                  <TableRow>
+                    <TableCell>User</TableCell>
+                    <TableCell>Status</TableCell>
+                  </TableRow>
+                </TableHead>
+                <TableBody>
+                  {attendanceRecords.filter(record => {
+                    const recordDate = new Date(record.date);
+                    return recordDate.toDateString() === new Date().toDateString();
+                  }).map(record => (
+                    <TableRow key={record._id}>
+                      <TableCell>{record.userId.name}</TableCell>
+                      <TableCell>{record.status}</TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
+            </TableContainer>
+          )}
+        </Paper>
       )}
-    </div>
+    </Container>
   );
 };
 

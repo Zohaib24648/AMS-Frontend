@@ -1,52 +1,49 @@
+// src/theme.js
 import { createTheme } from '@mui/material/styles';
 
 const theme = createTheme({
   palette: {
     primary: {
-      main: '#1976d2',
+      main: '#4a90e2', // Primary color
     },
     secondary: {
-      main: '#dc004e',
+      main: '#f50057', // Secondary color
     },
     background: {
-      default: '#f4f6f8',
-      paper: '#ffffff',
-    },
-    text: {
-      primary: '#333333',
-      secondary: '#555555',
+      default: '#f4f6f8', // Background color
     },
   },
   typography: {
+    fontFamily: 'Roboto, sans-serif',
     h1: {
-      fontWeight: 500,
       fontSize: '2.5rem',
-    },
-    h2: {
-      fontWeight: 500,
-      fontSize: '2rem',
-    },
-    h3: {
-      fontWeight: 500,
-      fontSize: '1.75rem',
-    },
-    h4: {
-      fontWeight: 500,
-      fontSize: '1.5rem',
+      fontWeight: 600,
+      color: '#333',
     },
     h5: {
-      fontWeight: 500,
-      fontSize: '1.25rem',
+      fontSize: '1.5rem',
+      fontWeight: 400,
+      color: '#333',
     },
-    h6: {
-      fontWeight: 500,
-      fontSize: '1rem',
+    button: {
+      textTransform: 'none',
     },
-    body1: {
-      fontSize: '1rem',
+  },
+  components: {
+    MuiButton: {
+      styleOverrides: {
+        root: {
+          borderRadius: '8px',
+          padding: '10px 20px',
+        },
+      },
     },
-    body2: {
-      fontSize: '0.875rem',
+    MuiTextField: {
+      styleOverrides: {
+        root: {
+          marginBottom: '16px',
+        },
+      },
     },
   },
 });

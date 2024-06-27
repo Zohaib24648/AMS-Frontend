@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { makeStyles } from '@mui/styles';
 import Drawer from '@mui/material/Drawer';
@@ -12,6 +12,12 @@ import AssignmentIcon from '@mui/icons-material/Assignment';
 import ExitToAppIcon from '@mui/icons-material/ExitToApp';
 import { useSelector, useDispatch } from 'react-redux';
 import { clearUser } from '../slices/authSlice';
+import Dialog from '@mui/material/Dialog';
+import DialogActions from '@mui/material/DialogActions';
+import DialogContent from '@mui/material/DialogContent';
+import DialogContentText from '@mui/material/DialogContentText';
+import DialogTitle from '@mui/material/DialogTitle';
+import Button from '@mui/material/Button';
 
 const useStyles = makeStyles((theme) => ({
   drawer: {
@@ -25,9 +31,25 @@ const useStyles = makeStyles((theme) => ({
   toolbar: theme.mixins.toolbar,
   listItem: {
     color: theme.palette.text.primary,
+    '&:hover': {
+      backgroundColor: theme.palette.action.hover,
+    },
   },
   listItemIcon: {
     color: theme.palette.primary.main,
+  },
+  logo: {
+    display: 'flex',
+    justifyContent: 'center',
+    alignItems: 'center',
+    padding: theme.spacing(2),
+    backgroundColor: theme.palette.primary.main,
+    color: theme.palette.primary.contrastText,
+    fontSize: '1.2rem',
+    fontWeight: 'bold',
+  },
+  divider: {
+    margin: theme.spacing(2, 0),
   },
 }));
 
@@ -36,72 +58,112 @@ const Sidebar = () => {
   const role = useSelector((state) => state.auth.role);
   const dispatch = useDispatch();
   const navigate = useNavigate();
+  const [open, setOpen] = useState(false);
 
   const handleLogout = () => {
     dispatch(clearUser());
     navigate('/login');
   };
 
+  const handleClickOpen = () => {
+    setOpen(true);
+  };
+
+  const handleClose = () => {
+    setOpen(false);
+  };
+
+  const confirmLogout = () => {
+    handleClose();
+    handleLogout();
+  };
+
   return (
-    <Drawer
-      className={classes.drawer}
-      variant="permanent"
-      classes={{
-        paper: classes.drawerPaper,
-      }}
-    >
-      <div className={classes.toolbar} />
-      <List>
-        <ListItem button component={Link} to="/profile" className={classes.listItem}>
-          <ListItemIcon className={classes.listItemIcon}><PersonIcon /></ListItemIcon>
-          <ListItemText primary="Profile" />
-        </ListItem>
-        {role === 'admin' && (
-          <>
-            <ListItem button component={Link} to="/admin" className={classes.listItem}>
-              <ListItemIcon className={classes.listItemIcon}><AssignmentIcon /></ListItemIcon>
-              <ListItemText primary="Admin Dashboard" />
-            </ListItem>
-            <ListItem button component={Link} to="/admin/attendance" className={classes.listItem}>
-              <ListItemIcon className={classes.listItemIcon}><AssignmentIcon /></ListItemIcon>
-              <ListItemText primary="Attendance" />
-            </ListItem>
-            <ListItem button component={Link} to="/admin/create-attendance" className={classes.listItem}>
-              <ListItemIcon className={classes.listItemIcon}><AssignmentIcon /></ListItemIcon>
-              <ListItemText primary="Create Attendance" />
-            </ListItem>
-            <ListItem button component={Link} to="/admin/leaves" className={classes.listItem}>
-              <ListItemIcon className={classes.listItemIcon}><AssignmentIcon /></ListItemIcon>
-              <ListItemText primary="Leaves" />
-            </ListItem>
-            <ListItem button component={Link} to="/admin/leave-request-history" className={classes.listItem}>
-              <ListItemIcon className={classes.listItemIcon}><AssignmentIcon /></ListItemIcon>
-              <ListItemText primary="Leave Request History" />
-            </ListItem>
-            <ListItem button component={Link} to="/admin/grade-criteria" className={classes.listItem}>
-              <ListItemIcon className={classes.listItemIcon}><AssignmentIcon /></ListItemIcon>
-              <ListItemText primary="Grade Criteria" />
-            </ListItem>
-          </>
-        )}
-        {role === 'user' && (
-          <>
-            <ListItem button component={Link} to="/attendance" className={classes.listItem}>
-              <ListItemIcon className={classes.listItemIcon}><AssignmentIcon /></ListItemIcon>
-              <ListItemText primary="Attendance" />
-            </ListItem>
-            <ListItem button component={Link} to="/leaves" className={classes.listItem}>
-              <ListItemIcon className={classes.listItemIcon}><AssignmentIcon /></ListItemIcon>
-              <ListItemText primary="Leaves" />
-            </ListItem>
-          </>
-        )}
-        <ListItem button onClick={handleLogout} className={classes.listItem}>
-          <ListItemIcon className={classes.listItemIcon}><ExitToAppIcon /></ListItemIcon>
-          <ListItemText primary="Logout" />
-        </ListItem>
-      </List>
-    </Drawer>
+    <>
+      <Drawer
+        className={classes.drawer}
+        variant="permanent"
+        classes={{
+          paper: classes.drawerPaper,
+        }}
+      >
+        <div className={classes.logo}>
+          My App
+        </div>
+        <div className={classes.toolbar} />
+        <List>
+          <ListItem button component={Link} to="/profile" className={classes.listItem}>
+            <ListItemIcon className={classes.listItemIcon}><PersonIcon /></ListItemIcon>
+            <ListItemText primary="Profile" />
+          </ListItem>
+          {role === 'admin' && (
+            <>
+              <ListItem button component={Link} to="/admin" className={classes.listItem}>
+                <ListItemIcon className={classes.listItemIcon}><AssignmentIcon /></ListItemIcon>
+                <ListItemText primary="Admin Dashboard" />
+              </ListItem>
+              <ListItem button component={Link} to="/admin/attendance" className={classes.listItem}>
+                <ListItemIcon className={classes.listItemIcon}><AssignmentIcon /></ListItemIcon>
+                <ListItemText primary="Attendance" />
+              </ListItem>
+              <ListItem button component={Link} to="/admin/create-attendance" className={classes.listItem}>
+                <ListItemIcon className={classes.listItemIcon}><AssignmentIcon /></ListItemIcon>
+                <ListItemText primary="Create Attendance" />
+              </ListItem>
+              <ListItem button component={Link} to="/admin/leaves" className={classes.listItem}>
+                <ListItemIcon className={classes.listItemIcon}><AssignmentIcon /></ListItemIcon>
+                <ListItemText primary="Leaves" />
+              </ListItem>
+              <ListItem button component={Link} to="/admin/leave-request-history" className={classes.listItem}>
+                <ListItemIcon className={classes.listItemIcon}><AssignmentIcon /></ListItemIcon>
+                <ListItemText primary="Leave Request History" />
+              </ListItem>
+              <ListItem button component={Link} to="/admin/grade-criteria" className={classes.listItem}>
+                <ListItemIcon className={classes.listItemIcon}><AssignmentIcon /></ListItemIcon>
+                <ListItemText primary="Grade Criteria" />
+              </ListItem>
+            </>
+          )}
+          {role === 'user' && (
+            <>
+              <ListItem button component={Link} to="/attendance" className={classes.listItem}>
+                <ListItemIcon className={classes.listItemIcon}><AssignmentIcon /></ListItemIcon>
+                <ListItemText primary="Attendance" />
+              </ListItem>
+              <ListItem button component={Link} to="/leaves" className={classes.listItem}>
+                <ListItemIcon className={classes.listItemIcon}><AssignmentIcon /></ListItemIcon>
+                <ListItemText primary="Leaves" />
+              </ListItem>
+            </>
+          )}
+          <ListItem button onClick={handleClickOpen} className={classes.listItem}>
+            <ListItemIcon className={classes.listItemIcon}><ExitToAppIcon /></ListItemIcon>
+            <ListItemText primary="Logout" />
+          </ListItem>
+        </List>
+      </Drawer>
+      <Dialog
+        open={open}
+        onClose={handleClose}
+        aria-labelledby="alert-dialog-title"
+        aria-describedby="alert-dialog-description"
+      >
+        <DialogTitle id="alert-dialog-title">{"Confirm Logout"}</DialogTitle>
+        <DialogContent>
+          <DialogContentText id="alert-dialog-description">
+            Are you sure you want to logout?
+          </DialogContentText>
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={handleClose} color="primary">
+            Cancel
+          </Button>
+          <Button onClick={confirmLogout} color="primary" autoFocus>
+            Logout
+          </Button>
+        </DialogActions>
+      </Dialog>
+    </>
   );
 };
 

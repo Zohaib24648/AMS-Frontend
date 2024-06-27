@@ -1,6 +1,9 @@
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 import { useSelector } from 'react-redux';
+import { Container, Typography, Paper, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, TextField, Button, Box } from '@mui/material';
+import { toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 
 const defaultGrades = [
   { grade: 'A', minPercentage: '', maxPercentage: '' },
@@ -16,8 +19,6 @@ const defaultGrades = [
 
 const GradeCriteria = () => {
   const [criteria, setCriteria] = useState(defaultGrades);
-  const [message, setMessage] = useState('');
-
   const token = useSelector((state) => state.auth.token);
 
   useEffect(() => {
@@ -36,6 +37,7 @@ const GradeCriteria = () => {
         })
         .catch(error => {
           console.error('Error fetching grade criteria:', error);
+          toast.error('Error fetching grade criteria');
         });
     }
   }, [token]);
@@ -52,7 +54,7 @@ const GradeCriteria = () => {
       if (criteria[i].grade !== grade) {
         if ((minPercentage > criteria[i].minPercentage && minPercentage < criteria[i].maxPercentage) ||
             (maxPercentage > criteria[i].minPercentage && maxPercentage < criteria[i].maxPercentage)) {
-          setMessage(`Error: Percentage range for grade ${grade} overlaps with grade ${criteria[i].grade}`);
+          toast.error(`Error: Percentage range for grade ${grade} overlaps with grade ${criteria[i].grade}`);
           return;
         }
       }
@@ -60,11 +62,11 @@ const GradeCriteria = () => {
 
     axios.post('http://localhost:3001/api/grades/grade-criteria', { grade, minPercentage, maxPercentage }, { headers })
       .then(response => {
-        setMessage('Grade criteria updated successfully');
+        toast.success('Grade criteria updated successfully');
       })
       .catch(error => {
         console.error('Error updating grade criteria:', error);
-        setMessage('Error updating grade criteria');
+        toast.error('Error updating grade criteria');
       });
   };
 
@@ -73,44 +75,53 @@ const GradeCriteria = () => {
   };
 
   return (
-    <div>
-      <h1>Grade Criteria</h1>
-      {message && <p>{message}</p>}
-      <table>
-        <thead>
-          <tr>
-            <th>Grade</th>
-            <th>Min Percentage</th>
-            <th>Max Percentage</th>
-            <th>Actions</th>
-          </tr>
-        </thead>
-        <tbody>
-          {criteria.map(({ grade, minPercentage, maxPercentage }) => (
-            <tr key={grade}>
-              <td>{grade}</td>
-              <td>
-                <input
-                  type="number"
-                  value={minPercentage}
-                  onChange={(e) => handleChange(grade, 'minPercentage', e.target.value)}
-                />
-              </td>
-              <td>
-                <input
-                  type="number"
-                  value={maxPercentage}
-                  onChange={(e) => handleChange(grade, 'maxPercentage', e.target.value)}
-                />
-              </td>
-              <td>
-                <button onClick={() => handleSave(grade)}>Save</button>
-              </td>
-            </tr>
-          ))}
-        </tbody>
-      </table>
-    </div>
+    <Container maxWidth="sm" sx={{ marginTop: 2 }}>
+      <Typography variant="h5" sx={{ marginBottom: 2 }}>Grade Criteria</Typography>
+      <Paper elevation={2} sx={{ padding: 2 }}>
+        <TableContainer component={Paper}>
+          <Table size="small">
+            <TableHead>
+              <TableRow>
+                <TableCell>Grade</TableCell>
+                <TableCell>Min %</TableCell>
+                <TableCell>Max %</TableCell>
+                <TableCell>Actions</TableCell>
+              </TableRow>
+            </TableHead>
+            <TableBody>
+              {criteria.map(({ grade, minPercentage, maxPercentage }) => (
+                <TableRow key={grade}>
+                  <TableCell>{grade}</TableCell>
+                  <TableCell>
+                    <TextField
+                      type="number"
+                      value={minPercentage}
+                      onChange={(e) => handleChange(grade, 'minPercentage', e.target.value)}
+                      variant="outlined"
+                      size="small"
+                      fullWidth
+                    />
+                  </TableCell>
+                  <TableCell>
+                    <TextField
+                      type="number"
+                      value={maxPercentage}
+                      onChange={(e) => handleChange(grade, 'maxPercentage', e.target.value)}
+                      variant="outlined"
+                      size="small"
+                      fullWidth
+                    />
+                  </TableCell>
+                  <TableCell>
+                    <Button variant="contained" color="primary" size="small" onClick={() => handleSave(grade)}>Save</Button>
+                  </TableCell>
+                </TableRow>
+              ))}
+            </TableBody>
+          </Table>
+        </TableContainer>
+      </Paper>
+    </Container>
   );
 };
 
