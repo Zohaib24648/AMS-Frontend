@@ -1,4 +1,5 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
+import { useSelector } from 'react-redux';
 import axios from 'axios';
 
 const UserProfilePage = () => {
@@ -7,13 +8,9 @@ const UserProfilePage = () => {
   const [email, setEmail] = useState('');
   const [profilePicture, setProfilePicture] = useState(null);
   const [message, setMessage] = useState('');
-  const token = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY2N2IzZDBmODQyMmIwYjhiOTk2NzcxYiIsImVtYWlsIjoiem9oYWliQGdtYWlsLmNvbSIsInJvbGUiOiJ1c2VyIiwiaWF0IjoxNzE5MzUyNTkxLCJleHAiOjE3MjAyMTY1OTF9.gH5IJUzCw_DeGc03p6-IsY1Gt3ZlGpp46Z66Cv2x7hA'; // Replace with your actual auth token
+  const token = useSelector((state) => state.auth.token);
 
-  useEffect(() => {
-    fetchUserProfile();
-  }, []);
-
-  const fetchUserProfile = async () => {
+  const fetchUserProfile = useCallback(async () => {
     try {
       const response = await axios.get('http://localhost:3001/api/profile/details', {
         headers: {
@@ -27,12 +24,18 @@ const UserProfilePage = () => {
     } catch (error) {
       console.error('Error fetching user profile:', error);
     }
-  };
+  }, [token]);
+
+  useEffect(() => {
+    if (token) {
+      fetchUserProfile();
+    }
+  }, [token, fetchUserProfile]);
 
   const handleUpdateProfile = async (e) => {
     e.preventDefault();
     try {
-      const response = await axios.put('http://localhost:3001/api/profile/update', {
+      await axios.put('http://localhost:3001/api/profile/update', {
         name,
         email,
       }, {
@@ -43,7 +46,7 @@ const UserProfilePage = () => {
       setMessage('Profile updated successfully');
       fetchUserProfile();
     } catch (error) {
-      setMessage(error.response.data.message || 'An error occurred.');
+      setMessage('An error occurred.');
     }
   };
 
@@ -52,7 +55,7 @@ const UserProfilePage = () => {
     const reader = new FileReader();
     reader.onloadend = async () => {
       try {
-        const response = await axios.post('http://localhost:3001/api/profile/uploadPicture', {
+        await axios.post('http://localhost:3001/api/profile/uploadPicture', {
           base64Image: reader.result,
         }, {
           headers: {
@@ -62,7 +65,7 @@ const UserProfilePage = () => {
         setMessage('Profile picture updated successfully');
         fetchUserProfile();
       } catch (error) {
-        setMessage(error.response.data.message || 'An error occurred.');
+        setMessage('An error occurred.');
       }
     };
     reader.readAsDataURL(file);

@@ -1,47 +1,30 @@
-import React, { useState, useEffect } from 'react';
-import axios from 'axios';
+import React, { useEffect, useState } from 'react';
+import { useDispatch, useSelector } from 'react-redux';
+import { fetchLeaves, postLeave } from '../slices/leavesSlice';
 
 const LeaveRequestPage = () => {
-  const [leaves, setLeaves] = useState([]);
   const [startDate, setStartDate] = useState('');
   const [endDate, setEndDate] = useState('');
   const [reason, setReason] = useState('');
   const [message, setMessage] = useState('');
-  const token = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY2N2IzZDBmODQyMmIwYjhiOTk2NzcxYiIsImVtYWlsIjoiem9oYWliQGdtYWlsLmNvbSIsInJvbGUiOiJ1c2VyIiwiaWF0IjoxNzE5MzUyNTkxLCJleHAiOjE3MjAyMTY1OTF9.gH5IJUzCw_DeGc03p6-IsY1Gt3ZlGpp46Z66Cv2x7hA'; // Replace with your actual auth token
+  const dispatch = useDispatch();
+  const leaves = useSelector((state) => state.leaves.requests);
+  const token = useSelector((state) => state.auth.token);
 
   useEffect(() => {
-    fetchLeaves();
-  }, []);
-
-  const fetchLeaves = async () => {
-    try {
-      const response = await axios.get('http://localhost:3001/api/leaves/getleaves', {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      });
-      setLeaves(response.data);
-    } catch (error) {
-      console.error('Error fetching leaves:', error);
+    if (token) {
+      dispatch(fetchLeaves(token));
     }
-  };
+  }, [token, dispatch]);
 
   const handlePostLeave = async (e) => {
     e.preventDefault();
     try {
-      const response = await axios.post('http://localhost:3001/api/leaves/postleave', {
-        startDate,
-        endDate,
-        reason,
-      }, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      });
+      await dispatch(postLeave({ startDate, endDate, reason, token }));
       setMessage('Leave request submitted successfully');
-      fetchLeaves();
+      dispatch(fetchLeaves(token));
     } catch (error) {
-      setMessage(error.response.data.message || 'An error occurred.');
+      setMessage('An error occurred.');
     }
   };
 
@@ -68,7 +51,7 @@ const LeaveRequestPage = () => {
           ))}
         </tbody>
       </table>
-      
+
       <h3>Submit Leave Request</h3>
       <form onSubmit={handlePostLeave}>
         <div>

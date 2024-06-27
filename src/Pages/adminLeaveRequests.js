@@ -1,25 +1,28 @@
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
+import { useSelector } from 'react-redux';
 
 const LeaveRequests = () => {
   const [leaveRequests, setLeaveRequests] = useState([]);
   const [message, setMessage] = useState('');
 
-  const token = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY2N2M4OTE4ODlmNjhlZDdhMWU0OTY1YyIsImVtYWlsIjoiYWRtaW5AZ21haWwuY29tIiwicm9sZSI6ImFkbWluIiwiaWF0IjoxNzE5NDM3Njk3LCJleHAiOjE3MjAzMDE2OTd9.AnTY_MvVOJpsGWywpB7cp_hgSkJkNklggMHZPIRjulA';
+  const token = useSelector((state) => state.auth.token);
 
   useEffect(() => {
-    const headers = {
-      Authorization: `Bearer ${token}`
-    };
+    if (token) {
+      const headers = {
+        Authorization: `Bearer ${token}`
+      };
 
-    axios.get('http://localhost:3001/api/leaves/getallleaves', { headers })
-      .then(response => {
-        setLeaveRequests(response.data);
-      })
-      .catch(error => {
-        console.error('Error fetching leave requests:', error);
-      });
-  }, []);
+      axios.get('http://localhost:3001/api/leaves/getallleaves', { headers })
+        .then(response => {
+          setLeaveRequests(response.data);
+        })
+        .catch(error => {
+          console.error('Error fetching leave requests:', error);
+        });
+    }
+  }, [token]);
 
   const handleUpdateStatus = (id, status) => {
     const headers = {

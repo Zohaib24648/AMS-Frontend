@@ -1,24 +1,31 @@
 import React, { useState } from 'react';
-import axios from 'axios';
+import { useDispatch } from 'react-redux';
+import { setUser } from '../slices/authSlice';
+import { login } from '../services/authService';
+import { useNavigate } from 'react-router-dom';
 
 const LoginPage = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [role, setRole] = useState('user');
   const [message, setMessage] = useState('');
+  const dispatch = useDispatch();
+  const navigate = useNavigate();
 
   const handleLogin = async (e) => {
     e.preventDefault();
     try {
-      const response = await axios.post('http://localhost:3001/api/auth/login', {
-        email,
-        password,
-        role,
-      });
+      const response = await login(email, password, role);
+      dispatch(setUser({ user: response.data.user, token: response.data.token, role: response.data.user.role }));
       setMessage(response.data.msg);
-      // Handle successful login, e.g., store token, redirect, etc.
+
+      if (response.data.user.role === 'admin') {
+        navigate('/admin');
+      } else {
+        navigate('/attendance');
+      }
     } catch (error) {
-      setMessage(error.response.data.msg || 'An error occurred.');
+      setMessage(error.response?.data?.msg || 'An error occurred.');
     }
   };
 

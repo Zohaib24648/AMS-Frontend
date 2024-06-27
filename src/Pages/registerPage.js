@@ -1,5 +1,8 @@
 import React, { useState } from 'react';
-import axios from 'axios';
+import { useDispatch } from 'react-redux';
+import { setUser } from '../slices/authSlice';
+import { register } from '../services/authService';
+import { useNavigate } from 'react-router-dom';
 
 const RegisterPage = () => {
   const [email, setEmail] = useState('');
@@ -7,20 +10,23 @@ const RegisterPage = () => {
   const [name, setName] = useState('');
   const [role, setRole] = useState('user');
   const [message, setMessage] = useState('');
+  const dispatch = useDispatch();
+  const navigate = useNavigate();
 
   const handleRegister = async (e) => {
     e.preventDefault();
     try {
-      const response = await axios.post('http://localhost:3001/api/auth/register', {
-        email,
-        password,
-        name,
-        role,
-      });
+      const response = await register(email, password, name, role);
+      dispatch(setUser({ user: response.data.user, token: response.data.token, role: response.data.user.role }));
       setMessage(response.data.msg);
-      // Handle successful registration, e.g., redirect to login, etc.
+
+      if (response.data.user.role === 'admin') {
+        navigate('/admin');
+      } else {
+        navigate('/attendance');
+      }
     } catch (error) {
-      setMessage(error.response.data.msg || 'An error occurred.');
+      setMessage(error.response?.data?.msg || 'An error occurred.');
     }
   };
 

@@ -1,5 +1,7 @@
 import React, { useEffect, useState } from 'react';
+import { useDispatch, useSelector } from 'react-redux';
 import axios from 'axios';
+import { fetchUsers } from '../slices/usersSlice';
 
 const AttendanceRange = () => {
   const [startDate, setStartDate] = useState('');
@@ -7,77 +9,83 @@ const AttendanceRange = () => {
   const [attendanceRecords, setAttendanceRecords] = useState([]);
   const [editRecord, setEditRecord] = useState(null);
   const [newStatus, setNewStatus] = useState('');
-  const [users, setUsers] = useState([]);
   const [selectedUser, setSelectedUser] = useState('');
 
-  const token = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY2N2M4OTE4ODlmNjhlZDdhMWU0OTY1YyIsImVtYWlsIjoiYWRtaW5AZ21haWwuY29tIiwicm9sZSI6ImFkbWluIiwiaWF0IjoxNzE5NDM3Njk3LCJleHAiOjE3MjAzMDE2OTd9.AnTY_MvVOJpsGWywpB7cp_hgSkJkNklggMHZPIRjulA';
+  const token = useSelector((state) => state.auth.token);
+  const users = useSelector((state) => state.users.list);
+  const dispatch = useDispatch();
 
   useEffect(() => {
-    const headers = {
-      Authorization: `Bearer ${token}`
-    };
-
-    axios.get('http://localhost:3001/api/admin/students', { headers })
-      .then(response => {
-        setUsers(response.data);
-      })
-      .catch(error => {
-        console.error('Error fetching users:', error);
-      });
-  }, []);
+    if (token) {
+      dispatch(fetchUsers(token));
+    }
+  }, [token, dispatch]);
 
   const handleFetchAttendance = () => {
     const headers = {
-      Authorization: `Bearer ${token}`
+      Authorization: `Bearer ${token}`,
     };
 
     const params = {
       startDate,
-      endDate
+      endDate,
     };
 
     if (selectedUser) {
       params.userId = selectedUser;
     }
 
-    axios.get('http://localhost:3001/api/attendance/report', { headers, params })
-      .then(response => {
+    axios
+      .get('http://localhost:3001/api/attendance/report', { headers, params })
+      .then((response) => {
         setAttendanceRecords(response.data);
       })
-      .catch(error => {
+      .catch((error) => {
         console.error('Error fetching attendance records:', error);
       });
   };
 
   const handleUpdateAttendance = (id) => {
     const headers = {
-      Authorization: `Bearer ${token}`
+      Authorization: `Bearer ${token}`,
     };
 
-    axios.put('http://localhost:3001/api/attendance/update', {
-      id,
-      status: newStatus
-    }, { headers })
-      .then(response => {
-        setAttendanceRecords(attendanceRecords.map(record => record._id === id ? response.data : record));
+    axios
+      .put(
+        'http://localhost:3001/api/attendance/update',
+        {
+          id,
+          status: newStatus,
+        },
+        { headers }
+      )
+      .then((response) => {
+        setAttendanceRecords(
+          attendanceRecords.map((record) =>
+            record._id === id ? response.data : record
+          )
+        );
         setEditRecord(null);
         setNewStatus('');
       })
-      .catch(error => {
+      .catch((error) => {
         console.error('Error updating attendance record:', error);
       });
   };
 
   const handleDeleteAttendance = (id) => {
     const headers = {
-      Authorization: `Bearer ${token}`
+      Authorization: `Bearer ${token}`,
     };
 
-    axios.delete(`http://localhost:3001/api/attendance/delete/${id}`, { headers })
+    axios
+      .delete(`http://localhost:3001/api/attendance/delete/${id}`, { headers })
       .then(() => {
-        setAttendanceRecords(attendanceRecords.filter(record => record._id !== id));
+        setAttendanceRecords(
+          attendanceRecords.filter((record) => record._id !== id)
+        );
       })
-      .catch(error => {
+      .catch((error) => {
         console.error('Error deleting attendance record:', error);
       });
   };
@@ -104,10 +112,15 @@ const AttendanceRange = () => {
         </label>
         <label>
           User (optional):
-          <select value={selectedUser} onChange={(e) => setSelectedUser(e.target.value)}>
+          <select
+            value={selectedUser}
+            onChange={(e) => setSelectedUser(e.target.value)}
+          >
             <option value="">All Users</option>
-            {users.map(user => (
-              <option key={user._id} value={user._id}>{user.name}</option>
+            {users.map((user) => (
+              <option key={user._id} value={user._id}>
+                {user.name}
+              </option>
             ))}
           </select>
         </label>
@@ -115,26 +128,46 @@ const AttendanceRange = () => {
       </div>
       {attendanceRecords.length > 0 && (
         <div>
-          <h2>Attendance from {startDate} to {endDate}</h2>
+          <h2>
+            Attendance from {startDate} to {endDate}
+          </h2>
           <ul>
-            {attendanceRecords.map(record => (
+            {attendanceRecords.map((record) => (
               <li key={record._id}>
-                {record.userId ? `${record.userId.name} - ${new Date(record.date).toLocaleDateString()} - ${record.status}` : 'Unknown User'}
+                {record.userId && record.userId.name
+                  ? `${record.userId.name} - ${new Date(
+                      record.date
+                    ).toLocaleDateString()} - ${record.status}`
+                  : 'Unknown User'}
                 {editRecord === record._id ? (
                   <>
-                    <select value={newStatus} onChange={(e) => setNewStatus(e.target.value)}>
+                    <select
+                      value={newStatus}
+                      onChange={(e) => setNewStatus(e.target.value)}
+                    >
                       <option value="">Select Status</option>
                       <option value="present">Present</option>
                       <option value="absent">Absent</option>
                       <option value="leave">Leave</option>
                     </select>
-                    <button onClick={() => handleUpdateAttendance(record._id)}>Update</button>
+                    <button onClick={() => handleUpdateAttendance(record._id)}>
+                      Update
+                    </button>
                     <button onClick={() => setEditRecord(null)}>Cancel</button>
                   </>
                 ) : (
                   <>
-                    <button onClick={() => { setEditRecord(record._id); setNewStatus(record.status); }}>Edit</button>
-                    <button onClick={() => handleDeleteAttendance(record._id)}>Delete</button>
+                    <button
+                      onClick={() => {
+                        setEditRecord(record._id);
+                        setNewStatus(record.status);
+                      }}
+                    >
+                      Edit
+                    </button>
+                    <button onClick={() => handleDeleteAttendance(record._id)}>
+                      Delete
+                    </button>
                   </>
                 )}
               </li>

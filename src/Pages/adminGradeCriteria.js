@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
+import { useSelector } from 'react-redux';
 
 const defaultGrades = [
   { grade: 'A', minPercentage: '', maxPercentage: '' },
@@ -17,25 +18,27 @@ const GradeCriteria = () => {
   const [criteria, setCriteria] = useState(defaultGrades);
   const [message, setMessage] = useState('');
 
-  const token = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY2N2M4OTE4ODlmNjhlZDdhMWU0OTY1YyIsImVtYWlsIjoiYWRtaW5AZ21haWwuY29tIiwicm9sZSI6ImFkbWluIiwiaWF0IjoxNzE5NDM3Njk3LCJleHAiOjE3MjAzMDE2OTd9.AnTY_MvVOJpsGWywpB7cp_hgSkJkNklggMHZPIRjulA';
+  const token = useSelector((state) => state.auth.token);
 
   useEffect(() => {
-    const headers = {
-      Authorization: `Bearer ${token}`
-    };
+    if (token) {
+      const headers = {
+        Authorization: `Bearer ${token}`
+      };
 
-    axios.get('http://localhost:3001/api/grades/grade-criteria', { headers })
-      .then(response => {
-        const fetchedCriteria = response.data;
-        const updatedCriteria = defaultGrades.map(grade => 
-          fetchedCriteria.find(item => item.grade === grade.grade) || grade
-        );
-        setCriteria(updatedCriteria);
-      })
-      .catch(error => {
-        console.error('Error fetching grade criteria:', error);
-      });
-  }, []);
+      axios.get('http://localhost:3001/api/grades/grade-criteria', { headers })
+        .then(response => {
+          const fetchedCriteria = response.data;
+          const updatedCriteria = defaultGrades.map(grade => 
+            fetchedCriteria.find(item => item.grade === grade.grade) || grade
+          );
+          setCriteria(updatedCriteria);
+        })
+        .catch(error => {
+          console.error('Error fetching grade criteria:', error);
+        });
+    }
+  }, [token]);
 
   const handleSave = (grade) => {
     const headers = {
