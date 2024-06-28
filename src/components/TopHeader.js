@@ -3,8 +3,6 @@ import { makeStyles } from '@mui/styles';
 import AppBar from '@mui/material/AppBar';
 import Toolbar from '@mui/material/Toolbar';
 import Typography from '@mui/material/Typography';
-import IconButton from '@mui/material/IconButton';
-import MenuIcon from '@mui/icons-material/Menu';
 
 const useStyles = makeStyles((theme) => ({
   appBar: {
@@ -14,11 +12,12 @@ const useStyles = makeStyles((theme) => ({
       duration: theme.transitions.duration.leavingScreen,
     }),
   },
-  menuButton: {
-    marginRight: theme.spacing(2),
+  toolbar: {
+    justifyContent: 'center', // This centers the toolbar content
   },
   title: {
     flexGrow: 1,
+    textAlign: 'center', // Ensures text is centered even if other elements are added later
   },
 }));
 
@@ -27,12 +26,9 @@ const TopHeader = () => {
 
   return (
     <AppBar position="fixed" className={classes.appBar}>
-      <Toolbar>
-        <IconButton edge="start" className={classes.menuButton} color="inherit" aria-label="menu">
-          <MenuIcon />
-        </IconButton>
+      <Toolbar className={classes.toolbar}>
         <Typography variant="h6" className={classes.title}>
-          Dashboard
+          Attendance Management System
         </Typography>
       </Toolbar>
     </AppBar>

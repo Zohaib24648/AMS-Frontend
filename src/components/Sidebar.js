@@ -18,6 +18,7 @@ import DialogContent from '@mui/material/DialogContent';
 import DialogContentText from '@mui/material/DialogContentText';
 import DialogTitle from '@mui/material/DialogTitle';
 import Button from '@mui/material/Button';
+import { blue } from '@mui/material/colors';
 
 const useStyles = makeStyles((theme) => ({
   drawer: {
@@ -27,16 +28,18 @@ const useStyles = makeStyles((theme) => ({
   drawerPaper: {
     width: 240,
     background: theme.palette.background.paper,
+    color: theme.palette.text.primary,
   },
   toolbar: theme.mixins.toolbar,
   listItem: {
-    color: theme.palette.text.primary,
+    color: theme.palette.primary.contrastText,
     '&:hover': {
-      backgroundColor: theme.palette.action.hover,
+      backgroundColor: '#000000',
+      color: '#000000',
     },
   },
   listItemIcon: {
-    color: theme.palette.primary.main,
+    color: theme.palette.primary.contrastText,
   },
   logo: {
     display: 'flex',
@@ -87,10 +90,8 @@ const Sidebar = () => {
           paper: classes.drawerPaper,
         }}
       >
-        <div className={classes.logo}>
-          My App
-        </div>
-        <div className={classes.toolbar} />
+        <div className={classes.logo}>AMS</div>
+       
         <List>
           <ListItem button component={Link} to="/profile" className={classes.listItem}>
             <ListItemIcon className={classes.listItemIcon}><PersonIcon /></ListItemIcon>

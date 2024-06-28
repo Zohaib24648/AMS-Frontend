@@ -7,6 +7,7 @@ const AdminDashboard = () => {
   const [totalUsers, setTotalUsers] = useState(0);
   const [usersPresentToday, setUsersPresentToday] = useState(0);
   const [usersAbsentToday, setUsersAbsentToday] = useState(0);
+  const [usersOnLeaveToday, setUsersOnLeaveToday] = useState(0);
   const [attendanceRecords, setAttendanceRecords] = useState([]);
   const [showAttendance, setShowAttendance] = useState(false);
   const [loading, setLoading] = useState(true);
@@ -40,9 +41,14 @@ const AdminDashboard = () => {
             const recordDate = new Date(record.date);
             return recordDate.toDateString() === today.toDateString() && record.status === 'absent';
           }).length;
+          const onLeave = response.data.filter(record => {
+            const recordDate = new Date(record.date);
+            return recordDate.toDateString() === today.toDateString() && record.status === 'leave';
+          }).length;
 
           setUsersPresentToday(present);
           setUsersAbsentToday(absent);
+          setUsersOnLeaveToday(onLeave);
           setAttendanceRecords(response.data);
           setLoading(false);
         })
@@ -66,6 +72,7 @@ const AdminDashboard = () => {
           <Typography variant="body1">Total Users: {totalUsers}</Typography>
           <Typography variant="body1">Users Present Today: {usersPresentToday}</Typography>
           <Typography variant="body1">Users Absent Today: {usersAbsentToday}</Typography>
+          <Typography variant="body1">Users On Leave Today: {usersOnLeaveToday}</Typography>
         </Box>
       </Paper>
       <Button variant="contained" color="primary" onClick={handleShowAttendance} sx={{ marginBottom: 4 }}>
